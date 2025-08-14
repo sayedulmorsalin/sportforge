@@ -16,6 +16,7 @@
             --light-gray: #efeff1;
             --white: #ffffff;
             --highlight: #ff4d94;
+            --recent: #00c3ff;
         }
         
         body {
@@ -72,6 +73,24 @@
         
         .btn-highlight:hover {
             background-color: #e83e8c;
+        }
+        
+        .btn-recent {
+            background-color: rgba(0, 195, 255, 0.2);
+            border: none;
+            padding: 8px 20px;
+            font-weight: 600;
+            color: var(--recent);
+        }
+        
+        .btn-recent:hover {
+            background-color: rgba(0, 195, 255, 0.3);
+        }
+        
+        .btn-recent.active {
+            background-color: var(--recent);
+            color: white;
+            border-color: var(--recent);
         }
         
         .btn-outline-primary {
@@ -152,6 +171,17 @@
             z-index: 15;
         }
         
+        #recent-moments-overlay {
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 320px;
+            height: 320px;
+            z-index: 15;
+            border-color: var(--recent);
+            box-shadow: 0 0 15px rgba(0, 195, 255, 0.5);
+        }
+        
         .overlay-header {
             display: flex;
             justify-content: space-between;
@@ -159,6 +189,10 @@
             margin-bottom: 12px;
             padding-bottom: 8px;
             border-bottom: 1px solid var(--primary);
+        }
+        
+        #recent-moments-overlay .overlay-header {
+            border-bottom: 1px solid var(--recent);
         }
         
         .overlay-title {
@@ -267,6 +301,16 @@
             background: var(--primary);
             color: white;
             border-color: var(--primary);
+        }
+        
+        .toggle-btn.recent-btn:hover {
+            background: rgba(0, 195, 255, 0.2);
+        }
+        
+        .toggle-btn.recent-btn.active {
+            background: var(--recent);
+            color: white;
+            border-color: var(--recent);
         }
         
         .highlight-btn {
@@ -545,6 +589,11 @@
             color: var(--highlight);
         }
         
+        .recent-tag {
+            background: rgba(0, 195, 255, 0.2);
+            color: var(--recent);
+        }
+        
         .highlight-clip {
             width: 100%;
             height: 160px;
@@ -677,6 +726,116 @@
             background: rgba(0, 150, 255, 0.3);
         }
         
+        /* Recent Moments Overlay Styles */
+        .recent-moments-list {
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        
+        .recent-moment {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .recent-moment:hover {
+            background: rgba(0, 195, 255, 0.15);
+        }
+        
+        .recent-moment.active {
+            background: rgba(0, 195, 255, 0.25);
+            border-left: 3px solid var(--recent);
+        }
+        
+        .moment-thumb {
+            width: 80px;
+            height: 45px;
+            border-radius: 4px;
+            background: linear-gradient(45deg, #00c3ff, #0077ff);
+            margin-right: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .moment-thumb::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, transparent 50%, rgba(0,0,0,0.2) 100%);
+        }
+        
+        .moment-info {
+            flex: 1;
+        }
+        
+        .moment-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 3px;
+            color: var(--white);
+        }
+        
+        .moment-details {
+            display: flex;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--light-gray);
+        }
+        
+        .moment-time {
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .moment-stats {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .moment-stat {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        
+        .recent-badge {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: var(--recent);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            z-index: 2;
+        }
+        
+        .recent-moments-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .recent-filter {
+            font-size: 0.85rem;
+            padding: 5px 10px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            cursor: pointer;
+        }
+        
         @media (max-width: 768px) {
             .chat-container {
                 margin-top: 30px;
@@ -698,7 +857,7 @@
                 height: 150px;
             }
             
-            #highlight-overlay {
+            #highlight-overlay, #recent-moments-overlay {
                 width: 90%;
                 height: 180px;
             }
@@ -709,6 +868,10 @@
             
             .highlight-player {
                 height: 200px;
+            }
+            
+            #recent-moments-overlay {
+                height: 300px;
             }
         }
     </style>
@@ -867,6 +1030,109 @@
                                 </div>
                             </div>
                         </div>
+                        
+                        <!-- NEW: Recent Moments Overlay -->
+                        <div id="recent-moments-overlay" class="overlay-container">
+                            <div class="overlay-header">
+                                <div class="overlay-title"><i class="fas fa-history me-2"></i> Recent Moments</div>
+                                <button class="close-overlay">&times;</button>
+                            </div>
+                            <div class="recent-moments-header">
+                                <small>Last 15 minutes</small>
+                                <div class="recent-filter">
+                                    <i class="fas fa-filter me-1"></i> Filter
+                                </div>
+                            </div>
+                            <div class="recent-moments-list">
+                                <div class="recent-moment active" data-time="00:32" data-title="1v4 Clutch Play">
+                                    <div class="moment-thumb">
+                                        <span class="recent-badge">NOW</span>
+                                    </div>
+                                    <div class="moment-info">
+                                        <div class="moment-title">1v4 Clutch Play</div>
+                                        <div class="moment-details">
+                                            <span class="moment-time"><i class="fas fa-clock me-1"></i> 00:32</span>
+                                            <div class="moment-stats">
+                                                <div class="moment-stat">
+                                                    <i class="fas fa-heart"></i> 142
+                                                </div>
+                                                <div class="moment-stat">
+                                                    <i class="fas fa-comment"></i> 28
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="recent-moment" data-time="01:45" data-title="Ace Round">
+                                    <div class="moment-thumb"></div>
+                                    <div class="moment-info">
+                                        <div class="moment-title">Ace Round</div>
+                                        <div class="moment-details">
+                                            <span class="moment-time"><i class="fas fa-clock me-1"></i> 01:45</span>
+                                            <div class="moment-stats">
+                                                <div class="moment-stat">
+                                                    <i class="fas fa-heart"></i> 98
+                                                </div>
+                                                <div class="moment-stat">
+                                                    <i class="fas fa-comment"></i> 15
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="recent-moment" data-time="03:12" data-title="Sniper Double Kill">
+                                    <div class="moment-thumb"></div>
+                                    <div class="moment-info">
+                                        <div class="moment-title">Sniper Double Kill</div>
+                                        <div class="moment-details">
+                                            <span class="moment-time"><i class="fas fa-clock me-1"></i> 03:12</span>
+                                            <div class="moment-stats">
+                                                <div class="moment-stat">
+                                                    <i class="fas fa-heart"></i> 76
+                                                </div>
+                                                <div class="moment-stat">
+                                                    <i class="fas fa-comment"></i> 12
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="recent-moment" data-time="04:28" data-title="Team Strategy">
+                                    <div class="moment-thumb"></div>
+                                    <div class="moment-info">
+                                        <div class="moment-title">Team Strategy Discussion</div>
+                                        <div class="moment-details">
+                                            <span class="moment-time"><i class="fas fa-clock me-1"></i> 04:28</span>
+                                            <div class="moment-stats">
+                                                <div class="moment-stat">
+                                                    <i class="fas fa-heart"></i> 54
+                                                </div>
+                                                <div class="moment-stat">
+                                                    <i class="fas fa-comment"></i> 31
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="recent-moment" data-time="06:50" data-title="New Skin Reveal">
+                                    <div class="moment-thumb"></div>
+                                    <div class="moment-info">
+                                        <div class="moment-title">New Skin Reveal</div>
+                                        <div class="moment-details">
+                                            <span class="moment-time"><i class="fas fa-clock me-1"></i> 06:50</span>
+                                            <div class="moment-stats">
+                                                <div class="moment-stat">
+                                                    <i class="fas fa-heart"></i> 210
+                                                </div>
+                                                <div class="moment-stat">
+                                                    <i class="fas fa-comment"></i> 45
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <!-- Toggle Buttons -->
@@ -886,6 +1152,11 @@
                         <div class="toggle-btn highlight-btn" data-overlay="highlight-overlay">
                             <i class="fas fa-star"></i>
                             <span>Highlight Clip</span>
+                        </div>
+                        <!-- NEW: Recent Moments Button -->
+                        <div class="toggle-btn recent-btn" data-overlay="recent-moments-overlay">
+                            <i class="fas fa-history"></i>
+                            <span>Recent Moments</span>
                         </div>
                     </div>
                     
@@ -911,6 +1182,7 @@
                             <span class="stream-tag">#Valorant</span>
                             <span class="stream-tag">#English</span>
                             <span class="stream-tag highlight-tag"><i class="fas fa-bolt me-1"></i>HIGHLIGHT AVAILABLE</span>
+                            <span class="stream-tag recent-tag"><i class="fas fa-history me-1"></i>RECENT MOMENTS</span>
                         </div>
                         
                         <div class="stream-stats">
@@ -929,6 +1201,10 @@
                             <div class="stat-item">
                                 <i class="fas fa-star text-warning"></i>
                                 <span>32 Highlights</span>
+                            </div>
+                            <div class="stat-item">
+                                <i class="fas fa-history text-info"></i>
+                                <span>5 Recent</span>
                             </div>
                         </div>
                     </div>
@@ -1116,6 +1392,13 @@
                                 <span class="message-text">That play deserves to be a highlight! <i class="fas fa-star text-warning"></i></span>
                             </div>
                         </div>
+                        <div class="message">
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=100&q=80" class="message-avatar">
+                            <div class="message-content">
+                                <span class="message-user">TimeTraveler:</span>
+                                <span class="message-text">Can you replay that last kill? <i class="fas fa-history text-info"></i></span>
+                            </div>
+                        </div>
                     </div>
                     <div class="chat-input">
                         <div class="input-group">
@@ -1159,6 +1442,16 @@
                                 <div>
                                     <div class="fw-bold">Fan Favorites</div>
                                     <small>Most saved highlights</small>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="me-3 text-info">
+                                    <i class="fas fa-history fa-2x"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold">Recent Moments</div>
+                                    <small>Key events from the last 15 minutes</small>
                                 </div>
                             </div>
                             
@@ -1216,6 +1509,54 @@
             });
         });
         
+        // Recent moments functionality
+        document.querySelectorAll('.recent-moment').forEach(moment => {
+            moment.addEventListener('click', function() {
+                // Remove active class from all moments
+                document.querySelectorAll('.recent-moment').forEach(m => {
+                    m.classList.remove('active');
+                });
+                
+                // Add active class to clicked moment
+                this.classList.add('active');
+                
+                const time = this.getAttribute('data-time');
+                const title = this.getAttribute('data-title');
+                
+                // Update viewer count to show activity
+                const viewerElement = document.querySelector('.viewer-count');
+                viewerElement.innerHTML = `<i class="fas fa-history me-1"></i> Replaying: ${title} (${time})`;
+                
+                // Show notification
+                showNotification(`Playing recent moment: ${title} at ${time}`);
+            });
+        });
+        
+        // Function to show notification
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'position-fixed bottom-0 end-0 p-3';
+            notification.style.zIndex = '11';
+            notification.innerHTML = `
+                <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header bg-info text-dark">
+                        <strong class="me-auto"><i class="fas fa-history me-2"></i>Recent Moment</strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body bg-dark text-light">
+                        ${message}
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+        
         // Simulate live chat updates
         function addChatMessage() {
             const messages = [
@@ -1231,12 +1572,15 @@
                 "When is your next stream?",
                 "That play deserves to be a highlight!",
                 "Is there a highlight of that last round?",
-                "Where can I find that highlight?"
+                "Where can I find that highlight?",
+                "Can you replay that last kill?",
+                "What was that at 00:32? Amazing!"
             ];
             
             const users = [
                 "ValoFan99", "GamerPro", "StreamNewbie", "EsportsFan", 
-                "GameMaster", "Viewer123", "FPSLover", "StrategyGuru", "ClipMaster"
+                "GameMaster", "Viewer123", "FPSLover", "StrategyGuru", "ClipMaster",
+                "TimeTraveler", "ReplayKing", "MomentSeeker"
             ];
             
             const avatars = [
