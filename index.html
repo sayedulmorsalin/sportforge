@@ -166,6 +166,69 @@
     height: 320px;
     z-index: 15;
 }
+        /* Team Switch Overlay */
+        #team-switch-overlay {
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 320px;
+            height: 320px;
+            z-index: 15;
+            border-color: #9146FF;
+            box-shadow: 0 0 15px rgba(145, 70, 255, 0.5);
+        }
+        
+        .team-perspectives-list {
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        
+        .team-perspective {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .team-perspective:hover {
+            background: rgba(145, 70, 255, 0.15);
+        }
+        
+        .team-perspective.active {
+            background: rgba(145, 70, 255, 0.25);
+            border-left: 3px solid var(--primary);
+        }
+        
+        .team-thumb {
+            width: 100%;
+            height: 60px;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+        }
+        
+        .team-info {
+            z-index: 2;
+        }
+        
+        .team-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: white;
+        }
+        
+        .team-viewers {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
         .overlay-header {
             display: flex;
             justify-content: space-between;
@@ -745,7 +808,7 @@
                 bottom: 100px;
                 height: 150px;
             }
-            #highlight-overlay, #recent-moments-overlay {
+            #highlight-overlay, #recent-moments-overlay, #team-switch-overlay {
                 width: 90%;
                 height: 180px;
             }
@@ -1034,7 +1097,7 @@
                 <div class="stream-container mb-4">
                     <div class="stream-player">
                         <div class="viewer-count"><i class="fas fa-eye me-1"></i> 24.8K viewers</div>
-                        <video controls poster="https://via.placeholder.com/1280x720/6441A5/ffffff?text=VALORANT+Stream">
+                        <video id="main-video" controls poster="https://via.placeholder.com/1280x720/6441A5/ffffff?text=VALORANT+Stream">
                             <source src="#" type="video/mp4">
                         </video>
                         <!-- Map Overlay -->
@@ -1278,7 +1341,47 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                        <!-- NEW: Team Switch Overlay -->
+                        <div id="team-switch-overlay" class="overlay-container">
+                            <div class="overlay-header">
+                                <div class="overlay-title"><i class="fas fa-users me-2"></i> Team Perspectives</div>
+                                <button class="close-overlay">&times;</button>
+                            </div>
+                            <div class="team-perspectives-list">
+                                <div class="team-perspective active" data-team="main">
+                                    <div class="team-thumb" style="background: linear-gradient(45deg, #9146FF, #772ce8);">
+                                        <div class="team-info">
+                                            <div class="team-name">Main Stream</div>
+                                            <div class="team-viewers"><i class="fas fa-eye me-1"></i> 24.8K</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="team-perspective" data-team="team1">
+                                    <div class="team-thumb" style="background: linear-gradient(45deg, #e91916, #ff4d94);">
+                                        <div class="team-info">
+                                            <div class="team-name">Team 1</div>
+                                            <div class="team-viewers"><i class="fas fa-eye me-1"></i> 8.2K</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="team-perspective" data-team="team2">
+                                    <div class="team-thumb" style="background: linear-gradient(45deg, #00c3ff, #0077ff);">
+                                        <div class="team-info">
+                                            <div class="team-name">Team 2</div>
+                                            <div class="team-viewers"><i class="fas fa-eye me-1"></i> 6.7K</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="team-perspective" data-team="team3">
+                                    <div class="team-thumb" style="background: linear-gradient(45deg, #4CAF50, #2196F3);">
+                                        <div class="team-info">
+                                            <div class="team-name">Team 3</div>
+                                            <div class="team-viewers"><i class="fas fa-eye me-1"></i> 5.1K</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <!-- Toggle Buttons -->
                     <div class="toggle-buttons">
@@ -1303,7 +1406,11 @@
                             <i class="fas fa-history"></i>
                             <span>Recent Moments</span>
                         </div>
-                        <div class="toggle-buttons">
+                        <!-- NEW: Team Switch Button -->
+                        <div class="toggle-btn" data-overlay="team-switch-overlay">
+                            <i class="fas fa-users"></i>
+                            <span>Switch Team</span>
+                        </div>
                         <!-- NEW: Cricket Score Button -->
                         <div class="toggle-btn" data-overlay="cricket-score-overlay">
                             <i class="fas fa-cricket"></i>
@@ -1779,6 +1886,45 @@
                 showNotification(`Playing recent moment: ${title} at ${time}`);
             });
         });
+        // Team switching functionality
+        document.querySelectorAll('.team-perspective').forEach(team => {
+            team.addEventListener('click', function() {
+                // Remove active class from all teams
+                document.querySelectorAll('.team-perspective').forEach(t => {
+                    t.classList.remove('active');
+                });
+                // Add active class to clicked team
+                this.classList.add('active');
+                
+                const teamId = this.getAttribute('data-team');
+                const teamName = this.querySelector('.team-name').textContent;
+                
+                // Hide the overlay
+                document.getElementById('team-switch-overlay').style.display = 'none';
+                document.querySelector(`.toggle-btn[data-overlay="team-switch-overlay"]`).classList.remove('active');
+                
+                // Update the stream title to indicate which team perspective we're watching
+                const streamTitle = document.querySelector('.stream-title');
+                if (teamId === 'main') {
+                    streamTitle.textContent = 'VALORANT RANKED GRIND - Road to Radiant! Day 3';
+                } else {
+                    streamTitle.textContent = `VALORANT RANKED GRIND - ${teamName} Perspective`;
+                }
+                
+                // Show notification
+                showNotification(`Switched to ${teamName} perspective`);
+                
+                // Here you would normally change the video source, but for demo purposes:
+                const viewerElement = document.querySelector('.viewer-count');
+                if (teamId === 'main') {
+                    viewerElement.innerHTML = `<i class="fas fa-eye me-1"></i> 24.8K viewers`;
+                } else {
+                    const viewers = ['8.2K', '6.7K', '5.1K'];
+                    const index = ['team1', 'team2', 'team3'].indexOf(teamId);
+                    viewerElement.innerHTML = `<i class="fas fa-eye me-1"></i> ${viewers[index]} viewers`;
+                }
+            });
+        });
         // Function to show notification
         function showNotification(message) {
             const notification = document.createElement('div');
@@ -1787,7 +1933,7 @@
             notification.innerHTML = `
                 <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
                     <div class="toast-header bg-info text-dark">
-                        <strong class="me-auto"><i class="fas fa-history me-2"></i>Recent Moment</strong>
+                        <strong class="me-auto"><i class="fas fa-users me-2"></i>Team Switch</strong>
                         <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
                     </div>
                     <div class="toast-body bg-dark text-light">
